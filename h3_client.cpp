@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <msquic.h>
+#include <msquichelper.h>
 
 
 //
@@ -13,6 +14,8 @@ HQUIC Registration;
 
 HQUIC Configuration;
 
+QUIC_TLS_SECRETS TlsSecrets;
+
 _Function_class_(QUIC_CONNECTION_CALLBACK)
 QUIC_STATUS
 QUIC_API
@@ -25,6 +28,7 @@ ClientConnectionCallback(
     switch (Event->Type)
     {
     case QUIC_CONNECTION_EVENT_CONNECTED:
+        WriteSslKeyLogFile("d:\\quic.log", TlsSecrets);
         //
         // The handshake has completed for the connection.
         //
@@ -109,6 +113,8 @@ int main(int argc, char** argv)
         printf("ConnectionOpen failed, 0x%x!\n", Status);
         goto Error;
     }
+
+    Status =MsQuic->SetParam(Connection, QUIC_PARAM_CONN_TLS_SECRETS, sizeof(TlsSecrets), &TlsSecrets);
 
     //
     // Start the connection to the server.
